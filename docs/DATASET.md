@@ -17,7 +17,7 @@ crafted to manipulate any AI analyst triaging the box.
 
 ## Ground-truth manifest
 
-Machine-readable: [`cases/case01/groundtruth.json`](../cases/case01/groundtruth.json).
+Machine-readable: [cases/case01/groundtruth.json](https://github.com/Unknown1502/Glassbox/blob/master/cases/case01/groundtruth.json).
 Each entry is `{id, artifact, location, detecting_tool, corroborating_tool,
 expected_confidence, mitre, is_decoy, keywords}`.
 
@@ -35,7 +35,7 @@ expected_confidence, mitre, is_decoy, keywords}`.
 ## Parsed forensic fixtures
 
 The tools return *parsed* artifact data (never raw multi-GB dumps). The parsed
-data for this case lives in [`cases/case01/fixtures/`](../cases/case01/fixtures/),
+data for this case lives in [cases/case01/fixtures/](https://github.com/Unknown1502/Glassbox/tree/master/cases/case01/fixtures),
 one JSON per artifact source: `runkeys`, `amcache`, `shimcache`, `mft`,
 `prefetch`, `usn`, `logfile`, `evtx`, `vol_pslist`, `vol_malfind`,
 `vol_netscan`, `vol_cmdline`, `yara`, and `injection_artifacts`. These represent
