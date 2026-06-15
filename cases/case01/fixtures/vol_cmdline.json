@@ -1,0 +1,8 @@
+{
+  "source": "windows.cmdline (memory.raw)",
+  "cmdlines": [
+    {"pid": 4188, "name": "upd.exe", "cmdline": "C:\\ProgramData\\upd.exe -k -s"},
+    {"pid": 3320, "name": "PSEXESVC.exe", "cmdline": "C:\\Windows\\PSEXESVC.exe"},
+    {"pid": 2104, "name": "chrome.exe", "cmdline": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\""}
+  ]
+}

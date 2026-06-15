@@ -1,0 +1,8 @@
+{
+  "source": "windows.netscan (memory.raw)",
+  "connections": [
+    {"pid": 4188, "proc": "upd.exe", "proto": "TCPv4", "local_addr": "10.4.12.51:49733", "foreign_addr": "185.220.101.47:443", "state": "ESTABLISHED", "suspicious": true, "reason": "beacon to known-bad hosting netblock on 443, no browser"},
+    {"pid": 2104, "proc": "chrome.exe", "proto": "TCPv4", "local_addr": "10.4.12.51:50112", "foreign_addr": "142.250.190.78:443", "state": "ESTABLISHED", "suspicious": false, "reason": "normal Google TLS"},
+    {"pid": 3320, "proc": "PSEXESVC.exe", "proto": "TCPv4", "local_addr": "10.4.12.51:445", "foreign_addr": "10.4.12.9:51544", "state": "ESTABLISHED", "suspicious": false, "reason": "internal SMB from admin workstation"}
+  ]
+}

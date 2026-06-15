@@ -1,0 +1,15 @@
+{
+  "source": "windows.malfind (memory.raw)",
+  "hits": [
+    {
+      "pid": 4188,
+      "process": "upd.exe",
+      "vad_start": "0x1d0000",
+      "vad_end": "0x1d8000",
+      "protection": "PAGE_EXECUTE_READWRITE",
+      "disasm_head": "55 8B EC 83 EC 20 ... (MZ-less shellcode prologue)",
+      "indicators": ["RWX private memory", "no backing file", "MZ header in private region"],
+      "yara_inline": "Cobalt_Strike_Beacon"
+    }
+  ]
+}

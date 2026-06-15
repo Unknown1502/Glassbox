@@ -1,0 +1,35 @@
+{
+  "source": "$MFT",
+  "records": [
+    {
+      "path": "C:\\ProgramData\\upd.exe",
+      "mft_record": "$MFT entry 84412",
+      "si_created": "2019-03-19T05:32:00Z",
+      "fn_created": "2026-05-30T02:13:55Z",
+      "si_modified": "2019-03-19T05:32:00Z",
+      "size": 286720,
+      "timestomped": true,
+      "reason": "$SI creation (2019) precedes $FN creation (2026) by 7 years — backdated to blend with OS files"
+    },
+    {
+      "path": "C:\\Windows\\PSEXESVC.exe",
+      "mft_record": "$MFT entry 71190",
+      "si_created": "2026-05-30T01:58:40Z",
+      "fn_created": "2026-05-30T01:58:40Z",
+      "si_modified": "2026-05-30T01:58:40Z",
+      "size": 175272,
+      "timestomped": false,
+      "reason": "consistent timestamps"
+    },
+    {
+      "path": "C:\\Users\\jdoe\\Documents\\budget_q2.xlsx",
+      "mft_record": "$MFT entry 90233",
+      "si_created": "2026-04-02T11:04:10Z",
+      "fn_created": "2026-04-02T11:04:10Z",
+      "si_modified": "2026-05-21T16:45:09Z",
+      "size": 48211,
+      "timestomped": false,
+      "reason": "normal user document"
+    }
+  ]
+}

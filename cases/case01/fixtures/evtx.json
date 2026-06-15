@@ -1,0 +1,9 @@
+{
+  "source": "Security.evtx / System.evtx",
+  "events": [
+    {"event_id": 7045, "channel": "System", "ts": "2026-05-30T01:58:44Z", "message": "A service was installed: PSEXESVC (C:\\Windows\\PSEXESVC.exe) by DOMAIN\\admin_helpdesk"},
+    {"event_id": 4688, "channel": "Security", "ts": "2026-05-30T02:14:31Z", "message": "A new process has been created: C:\\ProgramData\\upd.exe parent C:\\Windows\\System32\\services.exe"},
+    {"event_id": 4624, "channel": "Security", "ts": "2026-05-30T01:57:02Z", "message": "An account was successfully logged on: DOMAIN\\admin_helpdesk type 3 (network) from 10.4.12.9"},
+    {"event_id": 1102, "channel": "Security", "ts": "2026-05-30T06:05:35Z", "message": "The audit log was cleared by DOMAIN\\SYSTEM"}
+  ]
+}

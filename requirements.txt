@@ -1,0 +1,20 @@
+# Glass Box runs end-to-end with ZERO third-party packages (stdlib only).
+# Everything below is OPTIONAL and only upgrades a capability; the demo
+# (`python run.py`) works without any of them.
+
+# --- Real LLM backends (Investigator / Skeptic). Without these, Glass Box
+#     uses its deterministic forensic-reasoning engine so the demo is
+#     reproducible offline. Set ANTHROPIC_API_KEY / OPENAI_API_KEY to enable. ---
+# anthropic>=0.40.0
+# openai>=1.40.0
+
+# --- Expose the typed read-only tool surface over the Model Context Protocol.
+#     Only needed if you want to attach an external MCP client. ---
+# mcp>=1.2.0
+
+# --- Optional LangGraph wiring of the orchestrator state machine. Glass Box
+#     ships an equivalent pure-Python state machine, so this is not required. ---
+# langgraph>=0.2.0
+
+# --- Test runner (the tests also run under `python -m unittest`). ---
+# pytest>=8.0.0

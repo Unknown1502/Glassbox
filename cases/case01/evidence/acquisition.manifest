@@ -1,0 +1,9 @@
+{
+  "host": "WIN11-FIN-07",
+  "acquired_by": "glassbox-reference",
+  "objects": [
+    {"name": "disk.raw", "type": "ntfs_disk_image", "size_bytes": 68719476736, "note": "stand-in manifest; real image not redistributed"},
+    {"name": "memory.raw", "type": "windows_memory_dump", "size_bytes": 8589934592, "note": "stand-in manifest; real dump not redistributed"}
+  ],
+  "chain_of_custody": "sealed by Glass Box at investigation start; SHA-256 recorded pre/post run"
+}

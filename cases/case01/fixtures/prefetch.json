@@ -1,0 +1,32 @@
+{
+  "source": "C:\\Windows\\Prefetch",
+  "entries": [
+    {
+      "executable": "UPD.EXE",
+      "prefetch_file": "UPD.EXE-9A1B2C3D.pf",
+      "full_path": "C:\\ProgramData\\upd.exe",
+      "run_count": 3,
+      "first_run": "2026-05-30T02:14:31Z",
+      "last_run": "2026-05-30T06:02:18Z",
+      "suspicious": true
+    },
+    {
+      "executable": "PSEXESVC.EXE",
+      "prefetch_file": "PSEXESVC.EXE-4F5E6D7C.pf",
+      "full_path": "C:\\Windows\\PSEXESVC.exe",
+      "run_count": 1,
+      "first_run": "2026-05-30T01:58:44Z",
+      "last_run": "2026-05-30T01:58:44Z",
+      "suspicious": false
+    },
+    {
+      "executable": "CHROME.EXE",
+      "prefetch_file": "CHROME.EXE-AABBCCDD.pf",
+      "full_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "run_count": 412,
+      "first_run": "2025-11-02T09:10:00Z",
+      "last_run": "2026-05-30T08:55:31Z",
+      "suspicious": false
+    }
+  ]
+}

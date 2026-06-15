@@ -1,0 +1,17 @@
+{
+  "source": "$Extend\\$UsnJrnl:$J",
+  "events": [
+    {"usn": 10520112, "name": "upd.exe", "path": "C:\\ProgramData", "reason": "FILE_CREATE", "ts": "2026-05-30T02:13:55Z"},
+    {"usn": 10520140, "name": "upd.exe", "path": "C:\\ProgramData", "reason": "DATA_EXTEND|CLOSE", "ts": "2026-05-30T02:14:02Z"},
+    {"usn": 10884330, "name": "Windows PowerShell.evtx", "path": "C:\\Windows\\System32\\winevt\\Logs", "reason": "FILE_DELETE|CLOSE", "ts": "2026-05-30T06:05:40Z"}
+  ],
+  "gaps": [
+    {
+      "start_usn": 10884331,
+      "end_usn": 10903118,
+      "offset": "$UsnJrnl:$J +0x3f1a00",
+      "missing_records": 18787,
+      "note": "monotonic USN sequence skips ~18.7k records immediately after a .evtx deletion — journal carved/truncated to destroy evidence"
+    }
+  ]
+}

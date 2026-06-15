@@ -1,0 +1,9 @@
+{
+  "source": "windows.pslist (memory.raw)",
+  "processes": [
+    {"pid": 4188, "ppid": 612, "name": "upd.exe", "path": "C:\\ProgramData\\upd.exe", "create_time": "2026-05-30T02:14:31Z", "suspicious": true, "reason": "child of services.exe, unsigned, RWX memory"},
+    {"pid": 3320, "ppid": 612, "name": "PSEXESVC.exe", "path": "C:\\Windows\\PSEXESVC.exe", "create_time": "2026-05-30T01:58:44Z", "suspicious": false, "reason": "signed Sysinternals service"},
+    {"pid": 612, "ppid": 488, "name": "services.exe", "path": "C:\\Windows\\System32\\services.exe", "create_time": "2026-05-30T01:40:02Z", "suspicious": false, "reason": "system process"},
+    {"pid": 2104, "ppid": 1880, "name": "chrome.exe", "path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", "create_time": "2026-05-30T08:55:31Z", "suspicious": false, "reason": "user browser"}
+  ]
+}

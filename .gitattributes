@@ -1,0 +1,5 @@
+# Normalize line endings. Keep shell scripts LF so they run on SIFT/Linux.
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.ps1 text eol=crlf

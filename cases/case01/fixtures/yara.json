@@ -1,0 +1,9 @@
+{
+  "ruleset": "default",
+  "matches": [
+    {"rule": "Cobalt_Strike_Beacon", "target": "C:\\ProgramData\\upd.exe", "pid": 4188, "strings_hit": ["$beacon_config", "$rdll_loader"], "severity": "high"},
+    {"rule": "Generic_Packer_UPX", "target": "C:\\ProgramData\\upd.exe", "pid": 4188, "strings_hit": ["$upx_sig"], "severity": "medium"}
+  ],
+  "scanned": ["C:\\ProgramData\\upd.exe", "C:\\Windows\\PSEXESVC.exe", "C:\\Program Files\\7-Zip\\7z.exe"],
+  "no_match": ["C:\\Windows\\PSEXESVC.exe", "C:\\Program Files\\7-Zip\\7z.exe"]
+}

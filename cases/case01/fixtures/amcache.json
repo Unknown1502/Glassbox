@@ -1,0 +1,35 @@
+{
+  "hive": "Amcache.hve",
+  "entries": [
+    {
+      "name": "upd.exe",
+      "path": "C:\\ProgramData\\upd.exe",
+      "sha1": "a3f5c2d1e9b04471f6a8c0d2e4b6a8c0d2e4b6a8",
+      "first_run": "2026-05-30T02:14:31Z",
+      "compiled": "2026-05-29T18:42:10Z",
+      "signed": false,
+      "publisher": "",
+      "suspicious": true
+    },
+    {
+      "name": "PSEXESVC.exe",
+      "path": "C:\\Windows\\PSEXESVC.exe",
+      "sha1": "8b2f4e6a0c1d3f5079b1d3f5079b1d3f5079b1d3",
+      "first_run": "2026-05-30T01:58:44Z",
+      "compiled": "2023-06-28T00:00:00Z",
+      "signed": true,
+      "publisher": "Microsoft Corporation (Sysinternals PsExec)",
+      "suspicious": false
+    },
+    {
+      "name": "7z.exe",
+      "path": "C:\\Program Files\\7-Zip\\7z.exe",
+      "sha1": "11aa22bb33cc44dd55ee66ff77001122334455aa",
+      "first_run": "2026-04-11T13:20:00Z",
+      "compiled": "2024-01-30T00:00:00Z",
+      "signed": true,
+      "publisher": "Igor Pavlov",
+      "suspicious": false
+    }
+  ]
+}

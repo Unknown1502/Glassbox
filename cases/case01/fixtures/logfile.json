@@ -1,0 +1,8 @@
+{
+  "source": "$LogFile",
+  "transactions": [
+    {"lsn": "0x1f4a2200", "op": "DeleteFile", "target": "C:\\Windows\\System32\\winevt\\Logs\\Windows PowerShell.evtx", "ts": "2026-05-30T06:05:40Z"},
+    {"lsn": "0x1f4a2250", "op": "InitializeFileRecordSegment", "target": "C:\\ProgramData\\upd.exe", "ts": "2026-05-30T02:13:55Z"},
+    {"lsn": "0x1f4a1100", "op": "UpdateNonresidentValue", "target": "C:\\Users\\jdoe\\Documents\\budget_q2.xlsx", "ts": "2026-05-21T16:45:09Z"}
+  ]
+}

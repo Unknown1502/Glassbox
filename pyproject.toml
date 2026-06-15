@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "glassbox"
+version = "1.0.0"
+description = "Glass Box — a self-correcting DFIR triage agent where trust is enforced by architecture, not prompts."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Glass Box contributors" }]
+keywords = ["dfir", "forensics", "incident-response", "mcp", "agent", "provenance"]
+dependencies = []
+
+[project.optional-dependencies]
+llm = ["anthropic>=0.40.0", "openai>=1.40.0"]
+mcp = ["mcp>=1.2.0"]
+graph = ["langgraph>=0.2.0"]
+dev = ["pytest>=8.0.0"]
+
+[project.scripts]
+glassbox = "glassbox.orchestrator:main"
+
+[tool.setuptools]
+packages = ["glassbox"]

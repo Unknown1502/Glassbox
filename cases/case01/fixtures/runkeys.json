@@ -1,0 +1,29 @@
+{
+  "hive": "SOFTWARE",
+  "runkeys": [
+    {
+      "name": "Updater",
+      "value": "C:\\ProgramData\\upd.exe",
+      "registry_path": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\Updater",
+      "last_write": "2026-05-30T02:14:07Z",
+      "suspicious": true,
+      "reason": "non-standard updater binary in C:\\ProgramData, no publisher"
+    },
+    {
+      "name": "SecurityHealth",
+      "value": "%windir%\\system32\\SecurityHealthSystray.exe",
+      "registry_path": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\SecurityHealth",
+      "last_write": "2025-11-02T09:00:00Z",
+      "suspicious": false,
+      "reason": "signed Microsoft component"
+    },
+    {
+      "name": "OneDrive",
+      "value": "C:\\Users\\jdoe\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe /background",
+      "registry_path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\OneDrive",
+      "last_write": "2025-11-02T09:03:11Z",
+      "suspicious": false,
+      "reason": "signed Microsoft component"
+    }
+  ]
+}
