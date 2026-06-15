@@ -1,0 +1,23 @@
+{
+  "case_id": "case01",
+  "artifacts_total": 8,
+  "non_decoy_total": 7,
+  "confirmed_claims": 7,
+  "matched": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "recall": 1.0,
+  "precision": 1.0,
+  "hallucinations": 0,
+  "hallucination_detail": [],
+  "decoy_flagged": 0,
+  "decoy_detail": [],
+  "missed": [],
+  "matched_count": 7
+}

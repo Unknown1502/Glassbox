@@ -1,0 +1,53 @@
+{
+  "certificate": "Glass Box Evidence Integrity Certificate",
+  "version": "1.0",
+  "issued_at": 1781544414.2020528,
+  "evidence_root": "C:\\Users\\prajw\\OneDrive\\Desktop\\Evil Hack\\glassbox\\cases\\case01\\evidence",
+  "sealed_at": 1781544413.466084,
+  "host": "DESKTOP-MVHE5V6",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "run_user": "prajw",
+  "is_root": false,
+  "mount_mode": "copy-guard",
+  "mount_note": "OS read-only mount not enabled in this environment; integrity is enforced cryptographically (pre/post SHA-256) and by the write-free tool surface. No tool capable of modifying evidence exists.",
+  "objects_total": 2,
+  "objects_intact": 2,
+  "objects_ok": true,
+  "canaries_total": 3,
+  "canaries_intact": 3,
+  "canaries_ok": true,
+  "ledger_chain_ok": true,
+  "ledger_links": 49,
+  "overall_ok": true,
+  "verdict": "EVIDENCE INTACT \u2014 no spoliation detected",
+  "object_detail": {
+    "README.txt": {
+      "sealed": "91f4adb7f8afaf356a069dd4e792a70593a3dba3287f42280065b452123d08f1",
+      "current": "91f4adb7f8afaf356a069dd4e792a70593a3dba3287f42280065b452123d08f1",
+      "ok": true
+    },
+    "acquisition.manifest": {
+      "sealed": "aebce0e4f9aa6ead348010e82d916dee0f0540ade8538a738a1735015d168ed0",
+      "current": "aebce0e4f9aa6ead348010e82d916dee0f0540ade8538a738a1735015d168ed0",
+      "ok": true
+    }
+  },
+  "canary_detail": {
+    "glassbox_canary_0_dc558862.txt": {
+      "sealed": "39cc28275c1dd57bcf85c25437b9913d6a1ee4118a73aa4a76f9989c06a3c22f",
+      "current": "39cc28275c1dd57bcf85c25437b9913d6a1ee4118a73aa4a76f9989c06a3c22f",
+      "ok": true
+    },
+    "glassbox_canary_1_002297b9.txt": {
+      "sealed": "fb834d7db78829d2f214f5d5a4695007fd9e6c3cde65f184da63c4c15dd6eafd",
+      "current": "fb834d7db78829d2f214f5d5a4695007fd9e6c3cde65f184da63c4c15dd6eafd",
+      "ok": true
+    },
+    "glassbox_canary_2_55d2b8e9.txt": {
+      "sealed": "611662e72dec95c91c2071983d2caec9b7eca53dc9d0a9d01dc5c5376cc0cdba",
+      "current": "611662e72dec95c91c2071983d2caec9b7eca53dc9d0a9d01dc5c5376cc0cdba",
+      "ok": true
+    }
+  },
+  "self_signature_sha256": "f428d7bc9dfa79175755eb2ec2603174d7b0f741fd866192bd023db555b2a392"
+}
