@@ -7,7 +7,7 @@ evidence **only** through typed, read-only forensic functions; there is no
 generic `execute_shell` and no write/delete tool in existence.
 
 > The two diagrams below render natively on GitHub (Mermaid). The first is the
-> system/trust-boundary diagram required for submission; the second shows the
+> system / trust-boundary diagram required for submission; the second shows the
 > self-correction loop.
 
 ---
@@ -17,64 +17,66 @@ generic `execute_shell` and no write/delete tool in existence.
 ```mermaid
 flowchart TB
     classDef hard fill:#0b3d2e,stroke:#2ea043,color:#e6edf3,stroke-width:2px;
-    classDef soft fill:#3d2e0b,stroke:#d29922,color:#e6edf3,stroke-dasharray:5 4;
+    classDef soft fill:#3d2e0b,stroke:#d29922,color:#e6edf3,stroke-width:2px;
     classDef neutral fill:#161b22,stroke:#30363d,color:#e6edf3;
     classDef danger fill:#3d0b0b,stroke:#f85149,color:#e6edf3;
 
-    OPER["Analyst / case scope"]:::neutral
-
-    subgraph ORCH["ORCHESTRATOR — bounded state machine (hard --max-iterations cap + graceful HandoffPacket SITREP)"]
+    %% subgraphs declared first so their ids are never parsed as plain nodes
+    subgraph ORCH["ORCHESTRATOR — bounded state machine: max-iterations cap + HandoffPacket SITREP"]
         direction LR
         INV["INVESTIGATOR<br/>Model A"]:::soft
         SKEP["THE SKEPTIC<br/>Model B · different vendor<br/>sees only claim + evidence handles"]:::soft
-        HYP["HYPOTHESIS BOARD<br/>≤3 rival theories<br/>killed only by a contradicting execution"]:::neutral
+        HYP["HYPOTHESIS BOARD<br/>up to 3 rival theories<br/>killed only by a contradicting execution"]:::neutral
     end
 
-    OPER --> ORCH
-    INV -->|"names a tool + args (cannot execute)"| SURF
-    SKEP -->|"must re-derive with a DIFFERENT tool"| SURF
-
-    subgraph SURF["⛔ TYPED READ-ONLY TOOL SURFACE (MCP) — NO shell / write / delete tool exists"]
+    subgraph SURF["TYPED READ-ONLY TOOL SURFACE · MCP — NO shell / write / delete tool exists"]
         direction LR
         D1["DISK<br/>get_runkeys · get_amcache · get_shimcache<br/>get_mft_timeline · get_prefetch<br/>get_usn · get_logfile_records · list_event_logs"]:::hard
-        M1["MEMORY (Volatility 3)<br/>vol_pslist · vol_malfind<br/>vol_netscan · vol_cmdline"]:::hard
+        M1["MEMORY · Volatility 3<br/>vol_pslist · vol_malfind<br/>vol_netscan · vol_cmdline"]:::hard
         Y1["yara_scan · hash_object"]:::hard
     end
 
-    SURF --> ARM["PROMPTARMOR<br/>scan attacker-controlled strings,<br/>quarantine injection as inert data,<br/>emit adversarial IOC"]:::hard
-    SURF --> ADP["SIFT CLI ADAPTERS<br/>Volatility3 -r json · analyzeMFT/MFTECmd<br/>RegRipper · YARA — or fixture fallback"]:::neutral
-
-    ADP --> EVID
-    subgraph EVID["EVIDENCE — sealed before & after the run"]
+    subgraph EVID["EVIDENCE — sealed before and after the run"]
         direction LR
-        SEAL["SHA-256 of every object (pre/post)"]:::hard
+        SEAL["SHA-256 of every object, pre and post"]:::hard
         CAN["canary tripwires"]:::hard
     end
 
+    OPER["Analyst / case scope"]:::neutral
+    ARM["PROMPTARMOR<br/>scan attacker-controlled strings,<br/>quarantine injection as inert data,<br/>emit adversarial IOC"]:::hard
+    ADP["SIFT CLI ADAPTERS<br/>Volatility3 -r json · analyzeMFT / MFTECmd<br/>RegRipper · YARA — or fixture fallback"]:::neutral
+    LED["CLAIMCHAIN LEDGER<br/>hash-chained append-only JSONL<br/>claim to tool_exec_id to artifact_offset to output_hash to verdict"]:::hard
+    GATE{"GATE · hallucination firewall<br/>bound to evidence AND skeptic-confirmed?"}:::hard
+    CONF["CONFIRMED finding"]:::neutral
+    DEMO["demoted to inference / unverifiable"]:::danger
+    CERT["INTEGRITY CERTIFICATE<br/>pre/post hashes + canaries + chain"]:::hard
+    REP["GLASS REPORT · self-contained HTML<br/>every sentence clicks through to its evidence;<br/>demoted claims shown as inference — unverified"]:::neutral
+
+    OPER --> ORCH
+    INV -->|"names a tool + args, cannot execute"| SURF
+    SKEP -->|"must re-derive with a DIFFERENT tool"| SURF
+    SURF --> ARM
+    SURF --> ADP
+    ADP --> EVID
     ARM --> LED
     EVID --> LED
-    INV -.records exec.-> LED
-    SKEP -.records verdict.-> LED
-
-    LED["CLAIMCHAIN LEDGER<br/>hash-chained append-only JSONL<br/>claim → tool_exec_id → artifact_offset → output_hash → verdict"]:::hard
-
-    LED --> GATE{"GATE (hallucination firewall)<br/>bound to evidence AND skeptic-confirmed?"}:::hard
-    GATE -->|yes| CONF["CONFIRMED finding"]:::neutral
-    GATE -->|"no (unbound or refuted)"| DEMO["demoted → inference / unverifiable"]:::danger
-
+    INV -.->|records exec| LED
+    SKEP -.->|records verdict| LED
+    LED --> GATE
+    GATE -->|yes| CONF
+    GATE -->|"no · unbound or refuted"| DEMO
     CONF --> REP
     DEMO --> REP
-    EVID --> CERT["INTEGRITY CERTIFICATE<br/>pre/post hashes + canaries + chain"]:::hard
+    EVID --> CERT
     CERT --> REP
-    REP["GLASS REPORT — self-contained HTML<br/>every sentence clicks through to its evidence;<br/>demoted claims shown as 'inference — unverified'"]:::neutral
 ```
 
 **Legend**
 
 | Style | Meaning |
 |---|---|
-| 🟩 solid green | **Architectural guardrail (HARD)** — holds even if the model misbehaves |
-| 🟨 dashed amber | **Prompt guardrail (SOFT)** — the model's instructions; *not relied upon* |
+| 🟩 green | **Architectural guardrail (HARD)** — holds even if the model misbehaves |
+| 🟨 amber | **Prompt guardrail (SOFT)** — the model's instructions; *not relied upon* |
 | 🟥 red | a claim the gate refused to confirm |
 
 ---
@@ -108,10 +110,10 @@ The brief requires architectural vs prompt guardrails to be distinguished. They 
 
 ```mermaid
 sequenceDiagram
-    participant I as Investigator (Model A)
+    participant I as Investigator · Model A
     participant T as Typed read-only tools
     participant L as ClaimChain ledger
-    participant S as Skeptic (Model B, other vendor)
+    participant S as Skeptic · Model B, other vendor
     participant G as Gate
 
     I->>T: call get_* / vol_* (names tool; code executes it)
@@ -126,7 +128,7 @@ sequenceDiagram
         G-->>L: final = CONFIRMED
     else unbound OR refuted OR unverifiable
         G-->>L: demoted to inference / unverifiable
-        Note over G: e.g. "PSEXESVC is malware" → Skeptic shows it is signed<br/>Sysinternals → REFUTE → hypothesis killed (live self-correction)
+        Note over G: e.g. "PSEXESVC is malware" — Skeptic shows it is signed Sysinternals, REFUTE, hypothesis killed (live self-correction)
     end
 ```
 
