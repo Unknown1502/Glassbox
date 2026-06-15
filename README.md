@@ -23,6 +23,71 @@ activity — it quarantines it as inert data and reports it as an IOC.
 
 ---
 
+## Architecture at a glance
+
+**Pattern:** *Custom MCP Server* (FIND EVIL! brief, Approach #2) + a multi-agent
+Investigator/Skeptic loop. Full write-up — trust-boundary enforcement table
+(A1–A6) and the self-correction sequence diagram — in
+**[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
+
+```mermaid
+flowchart TB
+    classDef hard fill:#0b3d2e,stroke:#2ea043,color:#e6edf3,stroke-width:2px;
+    classDef soft fill:#3d2e0b,stroke:#d29922,color:#e6edf3,stroke-width:2px;
+    classDef neutral fill:#161b22,stroke:#30363d,color:#e6edf3;
+    classDef danger fill:#3d0b0b,stroke:#f85149,color:#e6edf3;
+
+    subgraph ORCH["ORCHESTRATOR — bounded state machine: max-iterations cap + HandoffPacket SITREP"]
+        direction LR
+        INV["INVESTIGATOR<br/>Model A"]:::soft
+        SKEP["THE SKEPTIC<br/>Model B · different vendor<br/>sees only claim + evidence handles"]:::soft
+        HYP["HYPOTHESIS BOARD<br/>up to 3 rival theories"]:::neutral
+    end
+
+    subgraph SURF["TYPED READ-ONLY TOOL SURFACE · MCP — NO shell / write / delete tool exists"]
+        direction LR
+        D1["DISK<br/>runkeys · amcache · shimcache · mft<br/>prefetch · usn · logfile · evtx"]:::hard
+        M1["MEMORY · Volatility 3<br/>pslist · malfind · netscan · cmdline"]:::hard
+        Y1["yara_scan · hash_object"]:::hard
+    end
+
+    subgraph EVID["EVIDENCE — sealed before and after the run"]
+        direction LR
+        SEAL["SHA-256 of every object, pre and post"]:::hard
+        CAN["canary tripwires"]:::hard
+    end
+
+    ARM["PROMPTARMOR<br/>quarantine injection,<br/>emit adversarial IOC"]:::hard
+    ADP["SIFT CLI ADAPTERS<br/>Volatility3 / analyzeMFT / RegRipper / YARA<br/>— or fixture fallback"]:::neutral
+    LED["CLAIMCHAIN LEDGER<br/>hash-chained append-only JSONL<br/>claim to exec_id to offset to hash to verdict"]:::hard
+    GATE{"GATE · hallucination firewall<br/>bound to evidence AND skeptic-confirmed?"}:::hard
+    CONF["CONFIRMED finding"]:::neutral
+    DEMO["demoted to inference / unverifiable"]:::danger
+    CERT["INTEGRITY CERTIFICATE"]:::hard
+    REP["GLASS REPORT · self-contained HTML<br/>every sentence clicks through to its evidence"]:::neutral
+
+    INV -->|"names a tool, cannot execute"| SURF
+    SKEP -->|"re-derive with a DIFFERENT tool"| SURF
+    SURF --> ARM
+    SURF --> ADP
+    ADP --> EVID
+    ARM --> LED
+    EVID --> LED
+    LED --> GATE
+    GATE -->|yes| CONF
+    GATE -->|"no · unbound or refuted"| DEMO
+    CONF --> REP
+    DEMO --> REP
+    EVID --> CERT
+    CERT --> REP
+```
+
+Hard guardrails (green) hold even if the model misbehaves; the prompt guardrail
+(amber) is *not* relied upon — the **gate** enforces evidence-citation
+architecturally, so an unbound or skeptic-refuted claim can never be "confirmed."
+
+---
+
 ## Quickstart (one command, zero API keys)
 
 ```bash
@@ -58,7 +123,7 @@ Outputs land in `out/`:
 make surface     # print the MCP tool surface — proves 0 write/shell tools exist
 make armor       # PromptArmor injection-corpus self-test (full recall, 0 FP)
 make verify      # re-verify the ledger hash chain of the last run
-make test        # run the 26-test suite (stdlib unittest, no pytest needed)
+make test        # run the 38-test suite (stdlib unittest, no pytest needed)
 ```
 
 ## Run it with real, different-vendor models
@@ -68,6 +133,10 @@ reproducible offline. To make the dual-model claim *literally* true, point the
 Investigator and Skeptic at different vendors:
 
 ```bash
+# Free, no credit card (this is what the SIFT demo uses): Groq Investigator + Gemini Skeptic.
+# Get keys at console.groq.com and aistudio.google.com/apikey, then `cp .env.example .env`.
+python run.py --investigator groq:llama-3.3-70b-versatile --skeptic gemini:gemini-2.0-flash
+
 # Anthropic Investigator + OpenAI Skeptic
 export ANTHROPIC_API_KEY=...   OPENAI_API_KEY=...
 python run.py --investigator anthropic:claude-fable-5 --skeptic openai:gpt-4o
@@ -75,6 +144,10 @@ python run.py --investigator anthropic:claude-fable-5 --skeptic openai:gpt-4o
 # Or fully local & offline via two different Ollama models (genuinely independent)
 python run.py --investigator ollama:llama3.1 --skeptic ollama:qwen2.5
 ```
+
+Providers are also auto-detected from a `.env` (see `.env.example`):
+`GLASSBOX_INVESTIGATOR` / `GLASSBOX_SKEPTIC` pick the pair; supported vendors are
+`groq`, `gemini`, `anthropic`, `openai`, `openrouter`, and `ollama`.
 
 The model reasons; **Glass Box always owns the tool calls and the provenance**,
 so a model can never fabricate an execution id or cite evidence it didn't pull.
@@ -116,12 +189,13 @@ glassbox/
   mcp_server.py     FastMCP server exposing that surface to external clients
   promptarmor.py    prompt-injection detector + quarantine (with corpus)
   gate.py           the hallucination firewall (claim demotion)
-  llm.py            Investigator (Model A) + independent Skeptic (Model B)
+  llm.py            Investigator (Model A) + independent Skeptic (Model B); providers + deterministic engine
+  agent.py          live agentic loop: a real LLM drives the tools; Skeptic re-derives
   orchestrator.py   the seal→…→report state machine (+ max-iter SITREP)
   report.py         self-contained click-through HTML report
   scorer.py         recall / precision / hallucination vs ground truth
 cases/case01/       documented ground-truth case + parsed fixtures
-tests/              26 tests incl. end-to-end, run via `make test`
+tests/              38 tests incl. end-to-end, run via `make test`
 docs/               architecture, dataset, accuracy, demo script, devpost
 ```
 
