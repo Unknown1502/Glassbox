@@ -1,88 +1,176 @@
 # Glass Box — Architecture & Trust Boundaries
 
-> Redraw the diagram below in draw.io / Excalidraw for the submission. Keep the
-> two trust-boundary labels — judges require architectural-vs-prompt guardrails
-> to be explicitly distinguished.
+**Architectural pattern:** *Custom MCP Server* (FIND EVIL! brief, Approach #2) —
+the pattern the organizers call "the most sound architecture in the evaluation"
+— combined with a *multi-agent* Investigator/Skeptic loop. The agent reaches
+evidence **only** through typed, read-only forensic functions; there is no
+generic `execute_shell` and no write/delete tool in existence.
 
+> The two diagrams below render natively on GitHub (Mermaid). The first is the
+> system/trust-boundary diagram required for submission; the second shows the
+> self-correction loop.
+
+---
+
+## 1. System diagram (trust boundaries labeled)
+
+```mermaid
+flowchart TB
+    classDef hard fill:#0b3d2e,stroke:#2ea043,color:#e6edf3,stroke-width:2px;
+    classDef soft fill:#3d2e0b,stroke:#d29922,color:#e6edf3,stroke-dasharray:5 4;
+    classDef neutral fill:#161b22,stroke:#30363d,color:#e6edf3;
+    classDef danger fill:#3d0b0b,stroke:#f85149,color:#e6edf3;
+
+    OPER["Analyst / case scope"]:::neutral
+
+    subgraph ORCH["ORCHESTRATOR — bounded state machine (hard --max-iterations cap + graceful HandoffPacket SITREP)"]
+        direction LR
+        INV["INVESTIGATOR<br/>Model A"]:::soft
+        SKEP["THE SKEPTIC<br/>Model B · different vendor<br/>sees only claim + evidence handles"]:::soft
+        HYP["HYPOTHESIS BOARD<br/>≤3 rival theories<br/>killed only by a contradicting execution"]:::neutral
+    end
+
+    OPER --> ORCH
+    INV -->|"names a tool + args (cannot execute)"| SURF
+    SKEP -->|"must re-derive with a DIFFERENT tool"| SURF
+
+    subgraph SURF["⛔ TYPED READ-ONLY TOOL SURFACE (MCP) — NO shell / write / delete tool exists"]
+        direction LR
+        D1["DISK<br/>get_runkeys · get_amcache · get_shimcache<br/>get_mft_timeline · get_prefetch<br/>get_usn · get_logfile_records · list_event_logs"]:::hard
+        M1["MEMORY (Volatility 3)<br/>vol_pslist · vol_malfind<br/>vol_netscan · vol_cmdline"]:::hard
+        Y1["yara_scan · hash_object"]:::hard
+    end
+
+    SURF --> ARM["PROMPTARMOR<br/>scan attacker-controlled strings,<br/>quarantine injection as inert data,<br/>emit adversarial IOC"]:::hard
+    SURF --> ADP["SIFT CLI ADAPTERS<br/>Volatility3 -r json · analyzeMFT/MFTECmd<br/>RegRipper · YARA — or fixture fallback"]:::neutral
+
+    ADP --> EVID
+    subgraph EVID["EVIDENCE — sealed before & after the run"]
+        direction LR
+        SEAL["SHA-256 of every object (pre/post)"]:::hard
+        CAN["canary tripwires"]:::hard
+    end
+
+    ARM --> LED
+    EVID --> LED
+    INV -.records exec.-> LED
+    SKEP -.records verdict.-> LED
+
+    LED["CLAIMCHAIN LEDGER<br/>hash-chained append-only JSONL<br/>claim → tool_exec_id → artifact_offset → output_hash → verdict"]:::hard
+
+    LED --> GATE{"GATE (hallucination firewall)<br/>bound to evidence AND skeptic-confirmed?"}:::hard
+    GATE -->|yes| CONF["CONFIRMED finding"]:::neutral
+    GATE -->|"no (unbound or refuted)"| DEMO["demoted → inference / unverifiable"]:::danger
+
+    CONF --> REP
+    DEMO --> REP
+    EVID --> CERT["INTEGRITY CERTIFICATE<br/>pre/post hashes + canaries + chain"]:::hard
+    CERT --> REP
+    REP["GLASS REPORT — self-contained HTML<br/>every sentence clicks through to its evidence;<br/>demoted claims shown as 'inference — unverified'"]:::neutral
 ```
-                     GLASS BOX ORCHESTRATOR
-               (state machine, hard max-iteration cap)
-        seal → scope → hypothesize → investigate → claim →
-        challenge(skeptic) → correct → adjudicate → gate → verify → report
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        ▼                      ▼                      ▼
-   INVESTIGATOR           THE SKEPTIC           HYPOTHESIS BOARD
-   (Model A)              (Model B, other        (3 rival theories;
-   forms claims           vendor; re-derives     killed only by a
-   via typed tools        with a DIFFERENT       contradicting tool
-                          tool; sees only        execution)
-        │                 claim + handles)
-        │                      │
-        ▼                      ▼
-  ╔══════════════════════════════════════════════════════╗
-  ║   TYPED READ-ONLY TOOL SURFACE  (the core innovation) ║   ← exposed over MCP
-  ║   get_mft_timeline get_prefetch get_amcache get_usn   ║
-  ║   get_runkeys get_shimcache get_logfile_records       ║
-  ║   list_event_logs vol_pslist vol_malfind vol_netscan  ║
-  ║   vol_cmdline yara_scan hash_object   (14 tools)      ║
-  ║   ── NO execute_shell. NO write/delete. By design. ── ║
-  ╚════════════════╤═══════════════════════╤═════════════╝
-                   │                       │
-          PROMPTARMOR taint            parse → summarize → return
-          + injection detector         (never raw dumps to the model)
-                   │                       │
-                   ▼                       ▼
-        ╔══════════════════════════════════════════════╗
-        ║  EVIDENCE (sealed; canaries seeded)           ║
-        ║  SHA-256 pre/post; read-only by construction  ║
-        ╚═══════════════════════╤══════════════════════╝
-                                ▼
-        ╔══════════════════════════════════════════════╗
-        ║  CLAIMCHAIN LEDGER (hash-chained JSONL)       ║
-        ║  claim → tool_exec_id → artifact_offset →     ║
-        ║  raw_sha256 → confidence → skeptic_verdict     ║
-        ╚═══════════════════════╤══════════════════════╝
-                                ▼
-        ╔══════════════════════════════════════════════╗
-        ║  GATE (hallucination firewall)               ║
-        ║  unbound OR refuted  →  demoted to inference  ║
-        ╚═══════════════════════╤══════════════════════╝
-                                ▼
-        ╔══════════════════════════════════════════════╗
-        ║  GLASS REPORT (HTML): every sentence clicks   ║
-        ║  through to its evidence; demoted claims show ║
-        ║  as "inference — unverified"                  ║
-        ╚══════════════════════════════════════════════╝
+
+**Legend**
+
+| Style | Meaning |
+|---|---|
+| 🟩 solid green | **Architectural guardrail (HARD)** — holds even if the model misbehaves |
+| 🟨 dashed amber | **Prompt guardrail (SOFT)** — the model's instructions; *not relied upon* |
+| 🟥 red | a claim the gate refused to confirm |
+
+---
+
+## 2. Where security boundaries are enforced
+
+The brief requires architectural vs prompt guardrails to be distinguished. They are:
+
+**Architectural guardrails (HARD — enforced by code/OS, survive a misbehaving model):**
+
+| # | Guarantee | Enforced in | How to verify |
+|---|---|---|---|
+| A1 | No write/shell primitive exists in the tool surface | `tools.py`, `mcp_server.py` | `python -m glassbox.mcp_server --list` → `write_tools: []`, `shell_tools: []` |
+| A2 | Evidence unchanged — SHA-256 sealed pre/post + canary tripwires | `evidence.py` | `out/integrity_certificate.json` (`overall_ok`) |
+| A3 | Unbound or skeptic-refuted claims cannot be "confirmed" | `gate.py` | `tests/test_gate.py`; gate decisions in the ledger |
+| A4 | Tamper-evident audit trail | `claimchain.py` | flip one byte → `verify_chain()` localizes the break |
+| A5 | Skeptic must use a *different* tool than the Investigator | `agent.py`, `llm.py` | `tests/test_end_to_end.py` asserts disjoint tool sets |
+| A6 | Evidence text is never executed as instruction | `promptarmor.py` | injection corpus self-test; quarantined as inert data |
+
+**Prompt guardrail (SOFT — labeled as such, deliberately *not* trusted):**
+
+- The Investigator's system prompt asks it to cite evidence and not over-flag.
+  This is **not** the protection. The **gate (A3)** enforces citation
+  structurally, so even if the prompt is ignored or the model hallucinates, an
+  unbound claim can never reach the "confirmed" column. The prompt improves
+  quality; the architecture provides the guarantee.
+
+---
+
+## 3. The self-correction loop (the autonomy tiebreaker)
+
+```mermaid
+sequenceDiagram
+    participant I as Investigator (Model A)
+    participant T as Typed read-only tools
+    participant L as ClaimChain ledger
+    participant S as Skeptic (Model B, other vendor)
+    participant G as Gate
+
+    I->>T: call get_* / vol_* (names tool; code executes it)
+    T->>L: record ToolExecution (hash, offset, summary)
+    I->>L: record Claim, citing tool_exec_id(s)
+    Note over S: sees ONLY the claim text + which tools were used
+    S->>T: re-derive with a DIFFERENT tool
+    T->>L: record Skeptic ToolExecution
+    S->>L: record Verdict (confirm / refute / unverifiable)
+    L->>G: claim + binding + verdict
+    alt bound AND skeptic-confirmed
+        G-->>L: final = CONFIRMED
+    else unbound OR refuted OR unverifiable
+        G-->>L: demoted to inference / unverifiable
+        Note over G: e.g. "PSEXESVC is malware" → Skeptic shows it is signed<br/>Sysinternals → REFUTE → hypothesis killed (live self-correction)
+    end
 ```
 
-## Trust-boundary legend (put this on the diagram)
+---
 
-**Architectural guardrails (HARD — hold even if the model misbehaves):**
-- The tool surface contains **no write or shell primitive**. Spoliation is
-  impossible because no tool capable of it exists (`tools.py`,
-  `mcp_server.py --list` shows `write_tools: []`, `shell_tools: []`).
-- Evidence is **SHA-256 sealed pre/post** and watched by **canary tripwires**;
-  an integrity certificate attests both (`evidence.py`).
-- The **gate** demotes any claim that is unbound or skeptic-refuted, regardless
-  of what the model asserted (`gate.py`).
-- The **hash-chained ledger** makes the audit trail tamper-evident
-  (`claimchain.py`).
+## 4. Components
 
-**Prompt guardrail (SOFT — label it as such):**
-- The Investigator's system prompt asks it to cite evidence. This is **not
-  relied upon**. The gate enforces citation *architecturally*, so even if the
-  prompt is ignored, an unbound claim can never reach "confirmed."
+| Module | File | Responsibility |
+|---|---|---|
+| Schemas | `glassbox/schemas.py` | `ToolExecution`, `Claim`, `Hypothesis`, `Confidence`/`Verdict` enums (the frozen data contract) |
+| Ledger | `glassbox/claimchain.py` | hash-chained append-only JSONL; `verify_chain`, `export_report_data` |
+| Evidence | `glassbox/evidence.py` | seal/verify, canaries, self-signed integrity certificate |
+| Tool surface | `glassbox/tools.py` | the 14 typed read-only tools; arg validation; provenance binding |
+| SIFT adapters | `glassbox/sift_adapters.py` | drive live Volatility 3 / analyzeMFT / RegRipper / YARA; fixture fallback |
+| MCP server | `glassbox/mcp_server.py` | expose the surface over MCP (`--list` proves 0 write/shell tools) |
+| PromptArmor | `glassbox/promptarmor.py` | detect + quarantine injection in evidence; corpus self-test |
+| Gate | `glassbox/gate.py` | the hallucination firewall (claim demotion) |
+| Reasoners | `glassbox/llm.py` | Investigator/Skeptic; providers (Anthropic/OpenAI/Groq/Gemini/OpenRouter/Ollama) + deterministic engine |
+| Agentic loop | `glassbox/agent.py` | real LLM drives the tools; independent Skeptic re-derives |
+| Orchestrator | `glassbox/orchestrator.py` | the bounded state machine seal→…→report |
+| Report | `glassbox/report.py` | self-contained click-through HTML |
+| Scorer | `glassbox/scorer.py` | recall / precision / hallucinations vs ground truth |
 
-## Why the Skeptic is genuinely independent
-- Different vendor/model from the Investigator (identical models are refused).
-- Receives **only** the claim text + evidence handles — never the
-  Investigator's chain of reasoning.
-- Must **re-derive with a different tool** than the one that produced the claim;
-  the end-to-end test asserts the investigator/skeptic tool sets are disjoint.
+---
 
-## Data contract (frozen on hour 0)
-`ToolExecution` (tool_exec_id, tool_name, args, evidence_path, artifact_offset,
-stdout_sha256, parsed_summary, actor, tokens) → cited by `Claim`
-(supporting_exec_ids, proposed/final confidence, skeptic_verdict,
-skeptic_exec_ids) → grouped under `Hypothesis`. See `glassbox/schemas.py`.
+## 5. Two run modes (same architecture)
+
+| Mode | When | Reasoning | Accuracy on `case01` |
+|---|---|---|---|
+| **Deterministic engine** | default, no API keys | `glassbox/llm.py` fixed forensic logic | recall 1.0 / precision 1.0 / **0 hallucinations**, fully reproducible & offline |
+| **Live agentic** | `.env` sets `GLASSBOX_INVESTIGATOR` + `GLASSBOX_SKEPTIC` | real different-vendor LLMs drive `glassbox/agent.py` | **0 hallucinations** in every run; recall scales with model quality / rate limits |
+
+The gate, ledger, PromptArmor, sealing, and integrity certificate are **identical
+in both modes** — only the reasoning changes. See `docs/ACCURACY.md` for the
+measured numbers (run on the SIFT Workstation) and documented failure modes.
+
+---
+
+## 6. Invariant that ties it together
+
+> **The model reasons; Glass Box owns the tools and the provenance.**
+
+In both modes a model only ever *names* a tool and arguments. Glass Box executes
+it, hashes the output, records the `tool_exec_id`, and binds the claim to it. A
+model can never fabricate an execution, cite evidence it did not pull, or reach a
+write/shell capability — because none exists to reach. That is why a Glass Box
+finding is something you can put on a witness stand.
